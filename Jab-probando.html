@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso de JavaScript Moderno</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-block {
+            font-family: 'Fira Code', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .console-output {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 120px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            line-height: 1.5;
+            border: 1px solid #333;
+        }
+        /* Custom scrollbar para el menú */
+        nav::-webkit-scrollbar {
+            width: 6px;
+        }
+        nav::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-yellow-500 mb-2">JavaScript Moderno (ES6+)</h1>
+            <p class="text-gray-400">Teoría y Ejercicios Prácticos Estilo JAB</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Menú de Lecciones -->
+            <nav class="lg:col-span-1 space-y-2 max-h-[80vh] overflow-y-auto pr-2">
+                <h2 class="text-xl font-semibold mb-4 border-b border-gray-700 pb-2 text-blue-400">Lecciones</h2>
+                <div id="lesson-menu" class="flex flex-col space-y-1"></div>
+                
+                <h2 class="text-xl font-semibold mt-8 mb-4 border-b border-gray-700 pb-2 text-green-400">Ejercicios JAB</h2>
+                <div id="exercise-menu" class="flex flex-col space-y-1"></div>
+            </nav>
+
+            <!-- Contenedor Principal -->
+            <main class="lg:col-span-3 bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-700">
+                <div id="lesson-content">
+                    <h2 id="lesson-title" class="text-3xl font-bold mb-4">Selecciona una lección</h2>
+                    <p id="lesson-description" class="text-gray-300 mb-6 leading-relaxed">
+                        Aprende con teoría y luego pon a prueba tus conocimientos con los ejercicios prácticos.
+                    </p>
+
+                    <div id="code-section" class="hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-lg font-semibold text-yellow-400">Código del Video:</h3>
+                            <span id="lesson-badge" class="px-2 py-1 text-xs rounded-full bg-blue-900 text-blue-200">Teoría</span>
+                        </div>
+                        <pre class="code-block" id="code-display"></pre>
+                        
+                        <div class="flex items-center space-x-4 mt-6">
+                            <button onclick="runCode()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200 shadow-lg">
+                                ▶ Ejecutar Código
+                            </button>
+                            <span class="text-sm text-gray-400 italic">Resultado en la consola inferior</span>
+                        </div>
+
+                        <div class="mt-8">
+                            <h3 class="text-lg font-semibold mb-2 text-blue-300">Consola de Salida:</h3>
+                            <div id="console-output" class="console-output">Esperando ejecución...</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const lessons = [
+            { id: 1, type: 'theory', title: "1. Variables: let y const", description: "Diferencias entre mutabilidad e inmutabilidad.", code: `const usuario = "Alex";\nlet puntos = 10;\npuntos += 5;\n\nconsole.log("Usuario:", usuario);\nconsole.log("Puntos totales:", puntos);` },
+            { id: 2, type: 'theory', title: "2. Condicionales (IF)", description: "Toma de decisiones con IF y Switch.", code: `const edad = 18;\nif (edad >= 18) {\n  console.log("Acceso concedido");\n} else {\n  console.log("Acceso denegado");\n}` },
+            { id: 3, type: 'theory', title: "3. Operador Ternario", description: "Estructuras de una sola línea.", code: `const premium = true;\nconst acceso = premium ? "Entra al VIP" : "Entra al General";\nconsole.log(acceso);` },
+            { id: 4, type: 'theory', title: "4. Bucles Modernos", description: "Recorrer datos con for...of y forEach.", code: `const apps = ['IG', 'FB', 'TW'];\napps.forEach(app => console.log("Abriendo " + app));` },
+            { id: 5, type: 'theory', title: "5. Arrow Functions", description: "Funciones modernas de flecha.", code: `const saludar = nom => "Hola " + nom;\nconsole.log(saludar("JAB"));` },
+            { id: 6, type: 'theory', title: "6. Desestructuración", description: "Extraer valores rápidamente.", code: `const pc = { cpu: "i7", ram: "16GB" };\nconst { cpu } = pc;\nconsole.log("Procesador:", cpu);` },
+            { id: 7, type: 'theory', title: "7. Métodos de Arreglos", description: "Map, Filter y Reduce.", code: `const precios = [10, 20, 30];\nconst conIVA = precios.map(p => p * 1.21);\nconsole.log("Con IVA:", conIVA);` },
+            { id: 8, type: 'theory', title: "8. Async / Await", description: "Promesas y asincronía.", code: `const api = () => new Promise(res => setTimeout(() => res("API OK"), 800));\nasync function test() { console.log("Cargando..."); console.log(await api()); }\ntest();` }
+        ];
+
+        const exercises = [
+            {
+                id: 101,
+                type: 'exercise',
+                title: "Ejercicio 1: Lógica JAB",
+                description: "Reto: Crea una variable 'temperatura'. Si es > 30, imprime 'Mucho calor', si está entre 15 y 30 'Clima ideal', si es menor 'Frío'. Usa Ternarios para el resultado final.",
+                code: `// --- TU SOLUCIÓN AQUÍ ---\nconst temp = 22;\n\nconst clima = temp > 30 \n    ? "Mucho calor" \n    : (temp >= 15 ? "Clima ideal" : "Hace frío");\n\nconsole.log("Resultado del ejercicio:");\nconsole.log("Temperatura: " + temp + " grados -> " + clima);`
+            },
+            {
+                id: 102,
+                type: 'exercise',
+                title: "Ejercicio 2: Carrito Filtro",
+                description: "Reto: Tienes un arreglo de productos. Filtra los que cuesten menos de 100 y luego genera un nuevo arreglo solo con sus nombres en mayúsculas.",
+                code: `const productos = [\n  { nombre: 'Ratón', precio: 25 },\n  { nombre: 'Monitor', precio: 250 },\n  { nombre: 'Teclado', precio: 50 },\n  { nombre: 'Gráfica', precio: 500 }\n];\n\n// 1. Filtrar baratos (<100)\n// 2. Mapear a nombres en Mayúsculas\nconst oferta = productos\n  .filter(p => p.precio < 100)\n  .map(p => p.nombre.toUpperCase());\n\nconsole.log("Productos en oferta:");\nconsole.log(oferta);`
+            },
+            {
+                id: 103,
+                type: 'exercise',
+                title: "Ejercicio 3: Desestructuración",
+                description: "Reto: Dado un objeto de configuración de sistema, extrae el puerto y la IP. Si el puerto no existe, debe valer 3000 por defecto.",
+                code: `const config = {\n  server: "Azure",\n  ip: "192.168.1.1",\n  // puerto: 5000\n};\n\nconst { ip, puerto = 3000 } = config;\n\nconsole.log("Iniciando servidor en...");\nconsole.log("Dirección IP: " + ip);\nconsole.log("Puerto: " + puerto);`
+            }
+        ];
+
+        let currentLesson = null;
+
+        function init() {
+            const lessonMenu = document.getElementById('lesson-menu');
+            const exerciseMenu = document.getElementById('exercise-menu');
+
+            lessons.forEach(l => {
+                lessonMenu.appendChild(createButton(l));
+            });
+
+            exercises.forEach(e => {
+                exerciseMenu.appendChild(createButton(e));
+            });
+        }
+
+        function createButton(item) {
+            const btn = document.createElement('button');
+            const color = item.type === 'theory' ? 'hover:border-yellow-500' : 'hover:border-green-500';
+            btn.className = "text-left px-4 py-2 rounded-md hover:bg-gray-700 transition duration-150 text-gray-400 hover:text-white border-l-2 border-transparent " + color + " mb-1 text-sm";
+            btn.textContent = item.title;
+            btn.onclick = () => loadLesson(item);
+            return btn;
+        }
+
+        function loadLesson(item) {
+            currentLesson = item;
+            document.getElementById('lesson-title').textContent = item.title;
+            document.getElementById('lesson-description').textContent = item.description;
+            document.getElementById('code-display').textContent = item.code;
+            document.getElementById('code-section').classList.remove('hidden');
+            
+            const badge = document.getElementById('lesson-badge');
+            badge.textContent = item.type === 'theory' ? 'Teoría' : 'Práctica';
+            badge.className = item.type === 'theory' 
+                ? 'px-2 py-1 text-xs rounded-full bg-blue-900 text-blue-200'
+                : 'px-2 py-1 text-xs rounded-full bg-green-900 text-green-200';
+
+            document.getElementById('console-output').innerHTML = '<span class="text-gray-600 italic">Presiona ejecutar para ver los resultados...</span>';
+        }
+
+        function runCode() {
+            if (!currentLesson) return;
+            const outputDiv = document.getElementById('console-output');
+            outputDiv.innerHTML = "";
+
+            console.log = function(...args) {
+                const text = args.map(arg => {
+                    return (typeof arg === 'object') ? JSON.stringify(arg, null, 2) : String(arg);
+                }).join(' ');
+
+                const line = document.createElement('div');
+                line.style.marginBottom = "4px";
+                line.innerHTML = '<span style="color: #fbbf24; margin-right: 10px;">➜</span>' + text;
+                outputDiv.appendChild(line);
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            };
+
+            try {
+                eval(currentLesson.code);
+            } catch (err) {
+                outputDiv.innerHTML += '<div style="color: #f87171; font-weight: bold;">Error en el código: ' + err.message + '</div>';
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
